@@ -10,7 +10,8 @@ Concrete.Graphics = {
   },
   // target element is optional
   createConnector: function(canvasContainer, sourceElement, targetElement) {
-    var centerPoint = function(e) {
+
+	var centerPoint = function(e) {
       return {
         x: e.left() + e.getWidth()/2,
         y: e.top() + e.getHeight()/2
@@ -54,43 +55,53 @@ Concrete.Graphics = {
           return clipPointV;
         }
       } else {
-        return clipPointH || clipPointV; 
+        return clipPointH || clipPointV;
       }
     };
-    // updates the canvas to contain an arrow from p1 to p2
-    // the canvas will be just big enough to fit the arrow
+
+    /*
+     * Updates the canvas to contain an arrow from p1 to p2.
+     * The canvas will be just big enough to fit the arrow.
+     */
     var drawArrow = function(p1, p2) {
-      if (p1 && p2) {
-        var ctx = canvas.getContext("2d");  
-        var offsetX = (p1.x < p2.x ? p1.x : p2.x) - 20;
-        var offsetY = (p1.y < p2.y ? p1.y : p2.y) - 20;
-        canvas.width = Math.abs(p1.x - p2.x) + 40;
-        canvas.height = Math.abs(p1.y - p2.y) + 40;
-        canvas.style.left = offsetX;
-        canvas.style.top = offsetY;
-        ctx.clearRect(0, 0, canvas.width-1, canvas.height-1);
-        ctx.translate(-offsetX, -offsetY);
-        ctx.beginPath();  
-        ctx.moveTo(p1.x, p1.y);  
-        ctx.lineTo(p2.x, p2.y);
-        ctx.translate(p2.x, p2.y);
-        ctx.rotate(Math.atan2((p2.y-p1.y), p2.x-p1.x));
-        ctx.moveTo(-8, -6);
-        ctx.lineTo(0, 0);
-        ctx.lineTo(-8, 6);
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 0.7;
-        ctx.stroke();  
-        if (isSelected) {
-          ctx.clearRect(-3, -3, 6, 6);
-          ctx.strokeRect(-3, -3, 6, 6);
-        }
-        canvas.show();
+      if( !(p1 && p2) ) {
+        return;
       }
+
+      // determine drawing area:
+      var offsetX = (p1.x < p2.x ? p1.x : p2.x) - 10;
+      var offsetY = (p1.y < p2.y ? p1.y : p2.y) - 10;
+      canvas.width = Math.abs(p1.x - p2.x) + 20;
+      canvas.height = Math.abs(p1.y - p2.y) + 20;
+      canvas.style.left = offsetX + "px";
+      canvas.style.top = offsetY + "px";
+
+      // actual drawing:
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width-1, canvas.height-1);
+      ctx.translate(-offsetX, -offsetY);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.translate(p2.x, p2.y);
+      ctx.rotate(Math.atan2((p2.y-p1.y), p2.x-p1.x));
+      ctx.moveTo(-8, -6);
+      ctx.lineTo(0, 0);
+      ctx.lineTo(-8, 6);
+      ctx.strokeStyle = "#000";
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+      if( isSelected ) {
+        ctx.clearRect(-3, -3, 6, 6);
+        ctx.strokeRect(-3, -3, 6, 6);
+      }
+      canvas.show();
     };
+
     var startPoint = function() {
       return elementBoxClipPoint(sourceElement, centerPoint(sourceElement), centerPoint(targetElement));
     };
+
     var endPoint = function() {
       return elementBoxClipPoint(targetElement, centerPoint(targetElement), centerPoint(sourceElement));
     };
