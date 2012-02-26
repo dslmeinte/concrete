@@ -318,41 +318,10 @@ Concrete.Editor = Class.create({
       this._hasFocus = false;
       this.editorRoot.removeClassName("ct_focus");
     }
-
-    if( !this._hasFocus ) return;
-
-    if( this.inlineEditor.isActive ) {
-      if( !element.up().hasClassName("ct_inline_editor") ) {
-        this.inlineEditor.cancel();
-        this.selector.selectDirect(element);
-      }
-    } else {
-      // clicked fold button?:
-      if( element.hasClassName("ct_fold_button") ) {
-        this.toggleFoldButton(element);
-      }
-      // clicked var handle?:
-      if( element.hasClassName("ct_var_handle") ) {
-        this._handleVariantToggle(event);
-      }
-      // follow reference?:
-      else if( this._ctrlKey(event) ) {
-        this.jumpReference(element);
-      }
-      // start editing?:
-      else if( this.selector.selected == this.selector.surroundingSelectable(element) ) {
-        this.runCommand("edit_event");
-       }
-      // change selection?:
-      else {
-        this.selector.selectDirect(element, event.shiftKey);
-        event.stop();
-      }
-    }
   },
 
   handleMouseEvent: function(event) {
-    if( !this._hasFocus || this.inlineEditor.isActive ) {
+    if( !this._hasFocus ) {
       return;
     }
 
@@ -386,6 +355,16 @@ Concrete.Editor = Class.create({
       }
     }
 
+    if( this.inlineEditor.isActive) {
+      if( event.type == "mouseup" && !element.up().hasClassName("ct_inline_editor") ) {
+        this.inlineEditor.cancel();
+        this.selector.selectDirect(element);
+      }
+      if( event.type == "mouseup" || event.type == "mousedown" ) {
+        return;
+      }
+    }
+
     if( event.type == "mousedown" && event.isLeftClick() ) {
       this._handleDragStart(event);
       event.stop();
@@ -408,6 +387,27 @@ Concrete.Editor = Class.create({
             && connector.isOnConnector({x: event.clientX, y: event.clientY})) {
           }
         })(this);
+        // clicked fold button?:
+        if( element.hasClassName("ct_fold_button") ) {
+          this.toggleFoldButton(element);
+        }
+        // clicked var handle?:
+        if( element.hasClassName("ct_var_handle") ) {
+          this._handleVariantToggle(event);
+        }
+        // follow reference?:
+        else if( this._ctrlKey(event) ) {
+          this.jumpReference(element);
+        }
+        // start editing?:
+        else if( this.selector.selected == this.selector.surroundingSelectable(element) ) {
+          this.runCommand("edit_event");
+         }
+        // change selection?:
+        else {
+          this.selector.selectDirect(element, event.shiftKey);
+          event.stop();
+        }
       }
     }
   },

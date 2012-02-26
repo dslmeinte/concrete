@@ -73,8 +73,8 @@ Concrete.Graphics = {
       var offsetY = (p1.y < p2.y ? p1.y : p2.y) - 10;
       canvas.width = Math.abs(p1.x - p2.x) + 20;
       canvas.height = Math.abs(p1.y - p2.y) + 20;
-      canvas.style.left = offsetX + "px";
-      canvas.style.top = offsetY + "px";
+      canvas.style.left = (offsetX - offsetParentOffset.left) + "px";
+      canvas.style.top = (offsetY - offsetParentOffset.top) + "px";
 
       // actual drawing:
       var ctx = canvas.getContext("2d");
@@ -108,6 +108,7 @@ Concrete.Graphics = {
 
     var canvas = null;
     var isSelected = false;
+    var offsetParentOffset;  // (is read, but IDE doesn't pick it up)
 
     var connector = {
       draw: function(target) {
@@ -162,6 +163,7 @@ Concrete.Graphics = {
     canvas.style.display = "none";
     canvasContainer.appendChild(canvas);
     canvas._concrete_connector = connector;
+    offsetParentOffset = canvas.getOffsetParent().cumulativeOffset();
 
     return connector;
   }
