@@ -25,10 +25,9 @@ Element.addMethods({
   },
   variantInfo: function(e) {
     var result = null;
-    var match;
     e.classNames()._each(function(n) {
-      match = n.match(/^ct_var(\d+)_(\d+)$/);
-      if (match) {
+      var match = n.match(/^ct_var(\d+)_(\d+)$/);
+      if( match ) {
         max = parseInt(match[1], 10);
         cur = parseInt(match[2], 10);
         result = { current: cur, max: max };
