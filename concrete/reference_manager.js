@@ -35,7 +35,7 @@ Concrete.createReferenceManager = function(modelInterface, identifierProvider, o
     }
     else {
       if (optionAdaptRefs && newIdent !== undefined) {
-        incomingRefs(element).each(function(v) {
+        incomingRefs(element).clone().each(function(v) {
           // this will trigger the value changed notification
           modelInterface.changeValue(v, newIdent);
         });
