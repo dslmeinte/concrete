@@ -536,6 +536,7 @@ Concrete.Editor = Class.create({
         next = 1;
       }
       element.setVariantIndex(next);
+      this.connectorManager.repaint();      
     }
   },
 
