@@ -1103,12 +1103,12 @@ Concrete.Editor.Commands = [
             n.remove();
           }
           else {
+            if( n.value != v ) {
+              editor._setDirtyState();
+            }
             editor.modelInterface.changeValue(n, v);
           }
           editor.adjustMarker();
-          if( n.value != v ) {
-            editor._setDirtyState();
-          }
         }
       });
     }
