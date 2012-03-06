@@ -177,7 +177,7 @@ Concrete.MetamodelExtension.Feature = {
 	isReference: function() { return this.kind == "reference"; },
 	isAttribute: function() { return this.kind == "attribute"; },
 	isStringAttribute: function() { return this.isAttribute() && this.type.name == "String"; },
-	isNameAttribute: function() { return this.isStringAttribute() && this.name == Concrete.QualifiedNameBasedIdentifierProvider.nameAttribute; }
+	isNameAttribute: function() { return this.isStringAttribute() && this.name == "name"; }		// Note: this ignores the value of Concrete.QualifiedNameBasedIdentifierProvider.options.nameAttribute
 
 };
 
