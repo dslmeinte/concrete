@@ -153,20 +153,31 @@ Concrete.MetamodelExtension.Class = {
 	
 	allFeatures: function() {
 		return this.allSuperTypes().collect(function(t) { return t.features; }).concat(this.features).flatten().uniq();
+	},
+
+	isReallyNamed: function() {
+		return this.allFeatures().any(function(f) { return f.isNameAttribute(); });
 	}
+
 };
-	
+
 Concrete.MetamodelExtension.Datatype = {
+
 	isEnum: function() { return this._class == "Enum"; },
 	isString: function() { return this.name == "String"; },
 	isInteger: function() { return this.name == "Integer"; },
 	isFloat: function() { return this.name == "Float"; },
 	isBoolean: function() { return this.name == "Boolean"; }
+
 };
 
 Concrete.MetamodelExtension.Feature = {
+
 	isContainment: function() { return this.kind == "containment"; },
 	isReference: function() { return this.kind == "reference"; },
-	isAttribute: function() { return this.kind == "attribute"; }
+	isAttribute: function() { return this.kind == "attribute"; },
+	isStringAttribute: function() { return this.isAttribute() && this.type.name == "String"; },
+	isNameAttribute: function() { return this.isStringAttribute() && this.name == Concrete.QualifiedNameBasedIdentifierProvider.nameAttribute; }
+
 };
 
