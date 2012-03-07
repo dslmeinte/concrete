@@ -100,6 +100,7 @@
 					message: "primitive types (Datatype) must be named 'String', 'Integer', 'Float' or 'Boolean'",
 					checker: function(element, value) {
 						return ["String", "Integer", "Float", "Boolean"].include(value);
+						// Datatype.name is a String attribute ==> value is String	(element is-a Datatype)
 					}
 				}));
 					
@@ -108,6 +109,10 @@
 					message: "features of kind 'attribute' must only reference primitive types (Datatype or Enum)",
 					checker: function(element, target) {
 						return !element.featureValues("kind").include("attribute") || !target || ["Datatype", "Enum"].include(target.mmClass.name);
+						/*
+						 * on Feature:
+						 *   it.kind != "attribute" || !target || target is-a Datatype || target is-a Enum
+						 */
 					}
 				}));
 
@@ -117,6 +122,10 @@
 					checker: function(element, target) {
 						var kind = element.featureValues("kind");
 						return (!kind.include("reference") && !kind.include("containment")) || !target || target.mmClass.name == "Class";
+						/*
+						 * on Feature:
+						 *   (it.kind != "reference" && it.kind != "containment") || !target || target is-a Class
+						 */
 					}
 				}));
 
