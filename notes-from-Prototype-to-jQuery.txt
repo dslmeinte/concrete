@@ -17,6 +17,9 @@ This text holds thoughts on migrating Concrete from Prototype to jQuery.
 	(Note that an 'initialize' function is effectively transformed into a constructor by Class.create({}.)
 	The use of these kinds of framework features generally wreaks havoc on IDE capabilities
 	 - e.g., Eclipse + WTP.
+	A slight disadvantage of the privileged function-style is that it creates a Function object
+	per privileged function per created object, but since our classes generally have only
+	one instance, that should not be problem.
 
 * Before actually migrating it's probably a good idea to Refactor the existing code base
 	to be a bit more orthogonal (e.g., _all_ model access through Concrete.ModelInterface)
