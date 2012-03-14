@@ -163,6 +163,10 @@ Concrete.Editor = Class.create({
 
   handleKeyDown: function(event) {
     if( !this._hasFocus ) {
+      // Backspace?:
+      if( event.keyCode == 8 ) {
+        event.stop();
+      }
       return;
     }
 
@@ -188,6 +192,12 @@ Concrete.Editor = Class.create({
     }
 
     var ctrlKey = this._ctrlKey(event);
+
+    // Backspace?:
+    if( event.keyCode == 8 ) {
+      event.stop();
+      return;
+    }
 
     if( event.keyCode == Event.KEY_LEFT && ctrlKey ) {
       // Ctrl-Shift-Left?:
