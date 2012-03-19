@@ -81,6 +81,7 @@ Concrete.Editor = Class.create({
     this.showDocumentationPopups = true;
     this.dirtyState = false;
     this._observeEvents();
+    this._blockPopups = false;
   },
 
   _setupRoot: function() {
@@ -97,13 +98,16 @@ Concrete.Editor = Class.create({
   },
 
   _createInlineEditor: function() {
-    var marker = this.marker;
+    var that = this;
     this.inlineEditor = new Concrete.InlineEditor(function(isActive) {
       if (isActive) {
-        marker.hide();
+        that.marker.hide();
+        that.popup.hide();
+        that._blockPopups = true;
       }
       else {
-        marker.show();
+        that.marker.show();
+        that._blockPopups = false;
       }
     });
   },
@@ -500,7 +504,9 @@ Concrete.Editor = Class.create({
       msg.innerHTML = content;
     }
     this._popupMessages[ident] = msg;
-    this.popup.show();
+    if( !this._blockPopups ) {
+      this.popup.show();
+    }
   },
 
   _resetPopupMessage: function(ident) {
