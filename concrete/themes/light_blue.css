@@ -5,6 +5,7 @@
 /* editor */
 .ct_editor {
 	cursor: default;
+	position: relative;
 }
 
 /* editor when focused */
