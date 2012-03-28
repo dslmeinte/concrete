@@ -637,6 +637,7 @@ Concrete.Editor = Class.create({
       this.dragContext = undefined;
     }
     if (this.didDrag) {
+      this._setDirtyState(true);
       this.didDrag = false;
       return true;
     }
@@ -677,7 +678,7 @@ Concrete.Editor = Class.create({
 
   _isAtResizeHandle: function(event) {
     var element = event.element();
-    return element.hasClassName("ct_resizable") && (event.clientX > element.right() - 10) && (event.clientY > element.bottom() - 10);
+    return element.hasClassName("ct_resizable") && (event.clientX > (element.cumulativeScrollOffset().left + Element.getWidth(element)) - 10) && (event.clientY > (element.cumulativeScrollOffset().top + Element.getHeight(element)) - 10);
   },
 
   _handleRefHighlight: function(event) {
