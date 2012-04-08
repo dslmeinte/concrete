@@ -4,17 +4,14 @@
 //
 // Concrete is freely distributable under the terms of an MIT-style license.
 
-Concrete.MetamodelProvider = Class.create({
+Concrete.MetamodelProvider = function(metamodelJson, opts) {
 
-	initialize: function(metamodelJson, opts) {
-		this.metamodel = metamodelJson;
-		this.metaclassesByName = {};
-		this.metaclasses = [];
-		this._extendedChecks = (opts == undefined || !(opts.extended_checks == false));
-		this._resolveMetamodel();
-	},
-	
-	_resolveMetamodel: function() {
+	this.metamodel = metamodelJson;
+	this.metaclassesByName = {};
+	this.metaclasses = [];
+	this._extendedChecks = (opts == undefined || !(opts.extended_checks == false));
+
+	this._resolveMetamodel = function() {
 		var rootClass = {name: "_Root", abstract: true, subTypes: [], superTypes: [], features: []};
 		Object.extend(rootClass, Concrete.MetamodelExtension.Class);
 		
@@ -99,9 +96,9 @@ Concrete.MetamodelProvider = Class.create({
 				}
 			}, this);
 		}, this);
-	},
-	
-	_extendedDatatypeChecks: function(type) {
+	};
+
+	this._extendedDatatypeChecks = function(type) {
 		for (p in type) {
 			if (!["_class", "name", "documentation", "literals"].include(p)) throw new Error("Unknown property '"+p+"' in type '"+type.name+"'");
 		}
@@ -114,18 +111,18 @@ Concrete.MetamodelProvider = Class.create({
 		if (type._class == "Datatype") {
 			if (!(["String", "Integer", "Float", "Boolean"].include(type.name))) throw new Error("Plain Datatypes (excluding Enums) must be named one of [String, Integer, Float, Boolean]");
 		}
-	},
+	};
 
-	_extendedClassChecks: function(clazz) {
+	this._extendedClassChecks = function(clazz) {
 		for (p in clazz) {
 			if (!["_class", "features", "name", "documentation", "superTypes", "abstract"].include(p)) throw new Error("Unknown property '"+p+"' in class '"+clazz.name+"'");
 		}
 		if (clazz.abstract != undefined) {
 			if (clazz.abstract != true && clazz.abstract != false) throw new Error("Abstract property must be true or false in class '"+clazz.name+"'");
 		}
-	},	
+	};
 
-	_extendedFeatureChecks: function(feat, clazz) {
+	this._extendedFeatureChecks = function(feat, clazz) {
 		var loc = " in class '"+clazz.name+"', feature '"+feat.name+"'";
 		for (p in feat) {
 			if (!["_class", "name", "documentation", "kind", "type", "lowerLimit", "upperLimit"].include(p)) throw new Error("Unknown property '"+p+"'" + loc );
@@ -133,24 +130,26 @@ Concrete.MetamodelProvider = Class.create({
 				if (!["attribute", "reference", "containment"].include(feat.kind)) throw new Error("Feature kind must be one of 'attribute', 'reference', 'containment'" + loc);
 			}
 		}
-	}
-		
-});
+	};
+
+	this._resolveMetamodel();
+
+};
 
 Concrete.MetamodelExtension = {};
 
 Concrete.MetamodelExtension.Class = {
-	
+
 	allSubTypes: function() {
 		this.subTypes = this.subTypes || [];
 		return this.subTypes.concat(this.subTypes.collect(function(t) { return t.allSubTypes(); })).flatten().uniq();
 	},
-	
+
 	allSuperTypes: function() {
 		this.superTypes = this.superTypes ||  [];
 		return this.superTypes.collect(function(t) { return t.allSuperTypes(); }).concat(this.superTypes).flatten().uniq();
 	},
-	
+
 	allFeatures: function() {
 		return this.allSuperTypes().collect(function(t) { return t.features; }).concat(this.features).flatten().uniq();
 	},

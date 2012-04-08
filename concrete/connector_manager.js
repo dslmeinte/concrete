@@ -45,4 +45,5 @@ Concrete.createConnectorManager = function(canvasRoot, referenceManager, modelIn
       });
     }
   };
+
 };

@@ -4,15 +4,12 @@
 //
 // Concrete is freely distributable under the terms of an MIT-style license.
 
-Concrete.Clipboard = Class.create({
+Concrete.Clipboard = function(storageElement) {
 
-	// if a storageElement is specified, the data is stored as textContent of this element	
-	initialize: function(storageElement) {
-		this.element = storageElement;
-		this.kind = undefined;
-	},
-	
-	read: function() {
+	this.element = storageElement;
+	this.kind = undefined;
+
+	this.read = function() {
 		var data = this._readRaw();
 		if (data && Object.isString(data) && data.isJSON()) {
 			return data.evalJSON();
@@ -20,28 +17,28 @@ Concrete.Clipboard = Class.create({
 		else {
 			return data;
 		}
-	},
-	
-	write: function(data) {
+	};
+
+	this.write = function(data) {
 		if (data instanceof Object) {
 			this._writeRaw(Concrete.Helper.prettyPrintJSON(Object.toJSON(data)));
 		}
 		else {
 			this._writeRaw(data);
 		}
-	},
+	};
 	
-	containsElement: function() {
+	this.containsElement = function() {
 		var data = this._readRaw();
 		return data && Object.isString(data) && data.isJSON();
-	},
+	};
 	
-	containsValue: function() {
+	this.containsValue = function() {
 		var data = this._readRaw();
 		return data && Object.isString(data) && !data.isJSON();
-	},
+	};
 	
-	_readRaw: function() {
+	this._readRaw = function() {
 		if (this.element) {
 			if (this.element.tagName == "TEXTAREA") {
 				return this.element.value;
@@ -53,9 +50,9 @@ Concrete.Clipboard = Class.create({
 		else {
 			return this.data;		
 		}		
-	},
+	};
 
-	_writeRaw: function(data) {
+	this._writeRaw = function(data) {
 		if (this.element) {
 			if (this.element.tagName == "TEXTAREA") {
 				this.element.value = data;
@@ -67,6 +64,7 @@ Concrete.Clipboard = Class.create({
 		else {
 			this.data = data;
 		}		
-	}
+	};
 		
-});
+};
+

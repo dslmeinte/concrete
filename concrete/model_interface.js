@@ -72,27 +72,26 @@ Element.addMethods({
   isElement: function(e) {
     return e.mmClass != undefined;
   }
+
 });
 
 
-Concrete.ModelInterface = Class.create({
-  
-  // +modelRoot+ is the DOM element containing the model elements
-  // Options:
-  //   displayValueProvider: a function which returns the display value for an attribute or reference, 
-  //       the function must take two arguments, the original value text and the value node's feature parent 
-  //       default: none
-  //
-  initialize: function(modelRoot, templateProvider, metamodelProvider, options) {
-    this.modelRoot = modelRoot;
-    this.templateProvider = templateProvider;
-    this.metamodelProvider = metamodelProvider;
-    options = options || {};
-    this._displayValueProvider = options.displayValueProvider;
-    this._modelChangeListeners = [];
-  },
+/* Options:
+ * +modelRoot+ is the DOM element containing the model elements
+ *   displayValueProvider: a function which returns the display value for an attribute or reference, 
+ *       the function must take two arguments, the original value text and the value node's feature parent 
+ *       default: none
+ */
+Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvider, options) {
 
-  addModelChangeListener: function(listener) {
+  this.modelRoot = modelRoot;
+  this.templateProvider = templateProvider;
+  this.metamodelProvider = metamodelProvider;
+  options = options || {};
+  this._displayValueProvider = options.displayValueProvider;
+  this._modelChangeListeners = [];
+
+  this.addModelChangeListener = function(listener) {
     if (!listener.valueChanged || !(listener.valueChanged instanceof Function) ||
         !listener.valueAdded || !(listener.valueAdded instanceof Function) ||
         !listener.valueRemoved || !(listener.valueRemoved instanceof Function) ||
@@ -101,40 +100,40 @@ Concrete.ModelInterface = Class.create({
         throw new Error ("incomplete listener interface");
     }
     this._modelChangeListeners.push(listener);
-  },
+  };
 
-  setDisplayValueProvider: function(dvp) {
+  this.setDisplayValueProvider = function(dvp) {
     this._displayValueProvider = dvp;
-  },
+  };
 
   /**
    * @returns The root elements of the model (as DOM objects).
    */
-  rootElements: function() {
+  this.rootElements = function() {
     return this.modelRoot.childElements();
-  },
+  };
 
   /**
    * @returns The whole model in abstract syntax.
    */
-  model: function() {
+  this.model = function() {
     return this.rootElements().collect(function(n) { return this.extractModel(n); }, this);
-  },
+  };
 
   /**
    * @returns <em>All</em> the elements in the model (as DOM objects).
    */
-  elements: function() {
+  this.elements = function() {
     return this.rootElements().collect(function(e) {
       return this._collectElementsRecursive(e);
     }, this).flatten();
-  },
+  };
 
   /**
    * Creates the element or elements described by 'model' in the position
    * indicated by 'where', relative to the 'target' element.
    */
-  createElement: function(target, where, model, options) {
+  this.createElement = function(target, where, model, options) {
     if( !(["before", "after", "bottom"].include(where)) ) throw new Error ("unknown position");
     if( where == "bottom" && target != this.modelRoot && !target.hasClassName("ct_slot") ) throw new Error ("not a slot");
     if( where != "bottom" && !target.hasClassName("ct_element") ) throw new Error ("not an element");
@@ -150,13 +149,13 @@ Concrete.ModelInterface = Class.create({
     if (parent != this.modelRoot) {
       if (parent.foldButton) parent.foldButton.removeClassName("ct_fold_empty");
     }
-  },
-  
-  moveElement: function(element) {
+  };
+
+  this.moveElement = function(element) {
     // TODO
-  },
-    
-  removeElement: function(elements) {
+  };
+
+  this.removeElement = function(elements) {
     if (!(elements instanceof Array)) elements = [ elements ];
     elements.each(function(element) {
       if (!element.hasClassName("ct_element")) throw new Error ("not an element");
@@ -169,9 +168,9 @@ Concrete.ModelInterface = Class.create({
       }
     }, this);
     this._notifyModelChangeListeners("commit");
-  },
-  
-  createValue: function(target, where, text) {
+  };
+
+  this.createValue = function(target, where, text) {
     if (!(["before", "after", "bottom"].include(where))) throw new Error ("unknown position");
     if (where == "bottom" && !target.hasClassName("ct_slot")) throw new Error ("not a slot");
     if (where != "bottom" && !target.hasClassName("ct_value")) throw new Error ("not a value");
@@ -183,9 +182,9 @@ Concrete.ModelInterface = Class.create({
     target.insert(arg);
     this._notifyModelChangeListeners("valueAdded", target.up(".ct_element"), feature, valueNode);
     this._notifyModelChangeListeners("commit");
-  },
-  
-  changeValue: function(value, text) {
+  };
+
+  this.changeValue = function(value, text) {
     var oldText;
     if (!value.hasClassName("ct_value")) throw new Error("not a value");
     var feature = value.findAncestor(["ct_attribute", "ct_reference"]);
@@ -195,22 +194,22 @@ Concrete.ModelInterface = Class.create({
     value.value = text;
     this._notifyModelChangeListeners("valueChanged", value.up(".ct_element"), feature, value, oldText, text);
     this._notifyModelChangeListeners("commit");
-  },
+  };
 
-  removeValue: function(value) {
+  this.removeValue = function(value) {
     if (!value.hasClassName("ct_value")) throw new Error("not a value");
     var element = value.up(".ct_element");
     var feature = value.findAncestor(["ct_attribute", "ct_reference"]);
     value.remove();
     this._notifyModelChangeListeners("valueRemoved", element, feature, value);
     this._notifyModelChangeListeners("commit");
-  },
+  };
 
   /**
    * Extracts the (sub) model in its abstract syntax from the given model (DOM) element,
    * recursively.
    */
-  extractModel: function(element) {
+  this.extractModel = function(element) {
     var result = { _class: element.mmClass.name };
     if( element.foldButton ) {
       result["_view"] = result["_view"] || {};
@@ -266,7 +265,7 @@ Concrete.ModelInterface = Class.create({
       }
     }, this);  // this == Concrete.ModelInterface
     return result;
-  },
+  };
 
   /**
    * Traverses the (sub) model hanging off the given model element, executing
@@ -280,7 +279,7 @@ Concrete.ModelInterface = Class.create({
    *              element, reference, attribute
    *            (containment is handled through the recursion)
    */
-  traverse: function(element, actions) {
+  this.traverse = function(element, actions) {
 //  (function _traverse(element, actions) {
 //    
 //  })(element, actions);
@@ -306,12 +305,12 @@ Concrete.ModelInterface = Class.create({
     if( actions.element ) {
       actions.element.call(element, element.mmClass);
     }
-  },
+  };
 
   /**
    * @returns All incoming references as an Array of a pair { element: ..., feature: ... }.
    */
-  incomingReferences: function(element) {
+  this.incomingReferences = function(element) {
     var references = [];
     var actions = {
     	reference: function(reference) {
@@ -323,13 +322,13 @@ Concrete.ModelInterface = Class.create({
     };
     this.rootElements().each( function(n) { this.traverse(n, actions); }, this);
     return references;
-  },
+  };
 
   /**
    * Redraws the displayed values in the sub model hanging off the given element.
    * If no element is provided, redrawing will be done on the whole model.
    */
-  redrawDisplayValues: function(element) {
+  this.redrawDisplayValues = function(element) {
     if( !this._displayValueProvider ) return; 
     if( element == undefined ) {
       this.rootElements().each(function(c) {
@@ -346,20 +345,20 @@ Concrete.ModelInterface = Class.create({
         }
       }, this);
     }
-  },
+  };
 
 
   // -- private functions --
 
-  _hasChildElements: function(element) {
+  this._hasChildElements = function(element) {
     return element.features.any(function(f) {
         return f.mmFeature.isContainment() && f.slot.childElements().any(function(c) { 
           return !c.hasClassName("ct_empty");
         });
       });
-  },
+  };
 
-  _notifyModelChangeListeners: function(type, element, feature, value, oldText, newText) {
+  this._notifyModelChangeListeners = function(type, element, feature, value, oldText, newText) {
     if (type == "elementAdded")
       this._modelChangeListeners.each(function(l) {l.elementAdded(element);});
     else if (type == "elementRemoved")
@@ -374,13 +373,13 @@ Concrete.ModelInterface = Class.create({
       this._modelChangeListeners.each(function(l) {l.commitChanges();});
     else
       throw new Error("unknown type");
-  },
+  };
 
   /**
    * Collects all elements in the sub model hanging off the given element
    * (including itself) in a flat list.
    */
-  _collectElementsRecursive: function(element) {
+  this._collectElementsRecursive = function(element) {
     var result = [element];
     element.features.each(function(f) {
       if( f.mmFeature.isContainment() ) {
@@ -390,7 +389,7 @@ Concrete.ModelInterface = Class.create({
       }
     }, this);
     return result;
-  },
+  };
 
   /**
    * Inserts a instance of the template representing element into slot.
@@ -398,7 +397,7 @@ Concrete.ModelInterface = Class.create({
    * <p>
    * This function is optimized to minimize model load time.
    */
-  _instantiateTemplateRecursive: function(element, target, where, options) {
+  this._instantiateTemplateRecursive = function(element, target, where, options) {
     options = options || {};
     var clazz = this.metamodelProvider.metaclassesByName[element._class];
     if (!clazz) return;
@@ -486,10 +485,10 @@ Concrete.ModelInterface = Class.create({
       inst.setVariantIndex(element._view.variant);
     }
     return inst;
-  },
+  };
 
   // (WARNING: copied from editor.js - except the this.adjustMarker() call)
-  collapseElement: function(n) {
+  this.collapseElement = function(n) {
     n.features.each(function(f) {
       if (f.mmFeature.isContainment()) f.hide();
     });
@@ -497,19 +496,19 @@ Concrete.ModelInterface = Class.create({
       n.foldButton.removeClassName("ct_fold_open");
       n.foldButton.addClassName("ct_fold_closed");
     }
-  },
+  };
 
-  _displayValue: function(text, feature) {
+  this._displayValue = function(text, feature) {
     if (this._displayValueProvider) {
       return this._displayValueProvider(text, feature);
     }
     else {
       return text;
     }
-  },
+  };
 
   // add information used to make template instantiation more efficient 
-  _addTemplateInfo: function(tmpl) {
+  this._addTemplateInfo = function(tmpl) {
     var allChilds = tmpl.allChildren();
     var ftmpls = tmpl.select(".ct_attribute").concat(tmpl.select(".ct_reference")).concat(tmpl.select(".ct_containment"));
     tmpl.featurePositions = ftmpls.collect(function(ft) { return allChilds.indexOf(ft); });
@@ -517,9 +516,9 @@ Concrete.ModelInterface = Class.create({
     tmpl.slotPositions = ftmpls.collect(function(ft) { return allChilds.indexOf(ft.down(".ct_slot")); });
     var foldButton = tmpl.down(".ct_fold_button");
     tmpl.foldButtonPosition = foldButton && allChilds.indexOf(foldButton);
-  }
+  };
 
-});
+};
 
 Concrete.ModelInterface.Helper = {
 

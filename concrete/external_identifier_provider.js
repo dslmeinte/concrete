@@ -21,47 +21,42 @@
 //
 // optionally the property "elements" may hold a single element instead of an Array
 //
-Concrete.IndexBasedExternalIdentifierProvider = Class.create({
+Concrete.IndexBasedExternalIdentifierProvider = function(index, metamodelProvider) {
 
-  initialize: function(index, metamodelProvider) {
-    this._index = index;
-    this._metamodelProvider = metamodelProvider;
-    this._separator = "/";
-  },
+  var separator = "/";
 
-  getElementInfo: function(ident, options) {
+  this.getElementInfo = function(ident, options) {
     if (!Object.isString(ident)) return false;
-    for (var i=0; i<this._index.size(); i++) {
-      var m = this._index[i];
+    for (var i=0; i<index.size(); i++) {
+      var m = index[i];
       if (!options || !options.ignoreModule || options.ignoreModule != m.name) {
-        var parts = ident.split(this._separator);
-        var type = this._getType(m, parts);
+        var parts = ident.split(separator);
+        var type = _getType(m, parts);
         if (type) return { type: type, module: m.name };
       }
     };
     return false;
-  },
+  };
 
-  getIdentifiers: function(type) {
+  this.getIdentifiers = function(type) {
     var typenames = type.allSubTypes().concat(type).collect(function(t){ return t.name; });
     var result = [];
-    this._index.each(function(m) {
-      result = result.concat(this._getIdentifiers(m, typenames, ""));
+    index.each(function(m) {
+      result = result.concat(_getIdentifiers(m, typenames, ""));
     }, this);
     return result;
-  },
+  };
 
-  getAllElementInfo: function() {
+  this.getAllElementInfo = function() {
     var result = [];
-    this._index.each(function(m) {
-      result = result.concat(this._getAllElementInfo(m, "", m));
+    index.each(function(m) {
+      result = result.concat(_getAllElementInfo(m, "", m));
     }, this);
     return result;
-  },
+  };
 
-  // private
 
-  _getType: function(cont, parts) {
+  function _getType(cont, parts) {
     var local = parts.shift();
     while (local == "" && parts.size() > 0) { local = parts.shift(); }
     if (local == "") return false;
@@ -70,42 +65,42 @@ Concrete.IndexBasedExternalIdentifierProvider = Class.create({
     var e = elements.find(function(e) { return e.name == local; });
     if (e) {
       if (parts.size() > 0) {
-        return this._getType(e, parts);
+        return _getType(e, parts);
       }
       else {
-        return this._metamodelProvider.metaclassesByName[e._class];
+        return metamodelProvider.metaclassesByName[e._class];
       }
     }
     else {
       return false; 
     }
-  },
+  };
 
-  _getIdentifiers: function(cont, typenames, path) {
+  function _getIdentifiers(cont, typenames, path) {
     var result = [];
     var elements = cont.elements;
     if (!(elements instanceof Array)) elements = [elements].compact();
     elements.each(function(e) {
-      var epath = path + this._separator + e.name;
+      var epath = path + separator + e.name;
       if (typenames.include(e._class)) {
         result.push(epath);
       }
-      result = result.concat(this._getIdentifiers(e, typenames, epath));
+      result = result.concat(_getIdentifiers(e, typenames, epath));
     }, this);
     return result; 
-  },
+  };
 
-  _getAllElementInfo: function(cont, path, module) {
+  function _getAllElementInfo(cont, path, module) {
     var result = [];
     var elements = cont.elements;
     if (!(elements instanceof Array)) elements = [elements].compact();
     elements.each(function(e) {
-      var epath = path + this._separator + e.name;
+      var epath = path + separator + e.name;
       result.push({identifier: epath, type: e._class, module: module.name});
-      result = result.concat(this._getAllElementInfo(e, epath, module));
+      result = result.concat(_getAllElementInfo(e, epath, module));
     }, this);
     return result; 
-  }
+  };
 
-});
+};
 
