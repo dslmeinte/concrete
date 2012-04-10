@@ -4,9 +4,9 @@
 //
 // Concrete is freely distributable under the terms of an MIT-style license.
 
-Concrete.BasicInlineEditor = function() {
+Concrete.BasicInlineEditor = Class.create({
 
-  this.show = function(element, initialText, partial, completionOptions) {
+  show: function(element, initialText, partial, completionOptions) {
     if (this.element) {
       // edit still in progress, cancel
       this.hide();
@@ -53,22 +53,21 @@ Concrete.BasicInlineEditor = function() {
         Effect.Appear(update,{duration:0.15});
       }
     });
-  };
+  },
 
-  this.getText = function() {
+  getText: function() {
     return this.input.value;
-  };
+  },
 
-  this.setError = function() {
+  setError: function() {
     this.element.next().addClassName("ct_error");
-  };
+  },
 
-  this.hide = function() {
+  hide: function() {
     if (this._interval) window.clearInterval(this._interval);
     this.element.show();
     this.element.next().remove();
     this.element = undefined;
-  };
+  }
 
-};
-
+});
