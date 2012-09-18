@@ -22,18 +22,14 @@ Concrete.Scroller.scrollTo = function(e, direction) {
     if (isScrollable(f)) {
       return f;
     } 
-    else {
-      return findScrollable(f.up());
-    }
+    return findScrollable(f.up());
   };
 
   var maxScroll = function(negOffset, posOffset) {
     if ((negOffset*-1) < posOffset) {
       return negOffset*-1;
     }
-    else {
-      return posOffset;
-    }
+    return posOffset;
   };
 
   var scrollable = findScrollable(e);

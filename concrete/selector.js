@@ -9,8 +9,8 @@ Concrete.Selector = Class.create({
   // Options:
   //   cursorEdgeOnly: if set to true snap cursor to element edges, default: true
   //
-  initialize: function(options) {
-    options = options || {};
+  initialize: function(_options) {
+    var options = _options || {};
     this.cursor = {x: 0, y: 0};
     this._inlineFirst = true;
     this._cursorEdgeOnly = options.cursorEdgeOnly == undefined ? true : options.cursorEdgeOnly;
@@ -77,17 +77,17 @@ Concrete.Selector = Class.create({
       candidates = (inline.size() > 0 ? inline : outer.select(function(s){ return this._isOuterInDirection(dir, s); }, this));
     }
 
-    function sortNextInDirection(dir, s) {
-      if (dir == "left") {
+    function sortNextInDirection(_dir, s) {
+      if (_dir == "left") {
         return -s.right();
       }
-      else if (dir == "right") {
+      else if (_dir == "right") {
         return s.left();
       }
-      else if (dir == "up") {
+      else if (_dir == "up") {
         return -s.bottom();
       }
-      else if (dir == "down") {
+      else if (_dir == "down") {
         return s.top();
       }
     }
@@ -117,9 +117,7 @@ Concrete.Selector = Class.create({
         xratio: this.cursor.x,
         yratio: this.cursor.y };
     }
-    else {
-      return {x: 0, y: 0, xratio: 0, yratio: 0};
-    }
+    return { x: 0, y: 0, xratio: 0, yratio: 0 };
   },
 
   // private
@@ -252,7 +250,8 @@ Concrete.Selector = Class.create({
    * Set the currently selected element to s and adjusts the cursor to be on
    * the boundaries of s.
    */
-  _setSelected: function(s, multi) {
+  _setSelected: function(_s, multi) {
+    var s = _s;
     if (s == this.selected) return;
     this.multiSelected.each(function(e) { e.removeClassName("ct_selected"); });
     if (this.selected) this.selected.removeClassName("ct_selected");

@@ -46,18 +46,23 @@ Concrete.ConstraintChecker = function(rootClasses, identifierProvider, options) 
 
 
   this.elementAdded = function(element) {
+	  // (no behavior)
   };
 
   this.elementRemoved = function(element) {
+	  // (no behavior)
   };
 
   this.valueAdded = function(element, feature, value) {
+	  // (no behavior)
   };
 
   this.valueRemoved = function(element, feature, value) {
+	  // (no behavior)
   },
 
   this.valueChanged = function(element, feature, value, oldText, newText) {
+	  // (no behavior)
   };
 
   this.commitChanges = function() {
@@ -116,10 +121,9 @@ Concrete.ConstraintChecker = function(rootClasses, identifierProvider, options) 
     };
     if( slot.hasClassName("ct_root") ) {
       return namesNonAbstracts(this.rootClasses);
-    } else {
-      var type = slot.mmFeature().type;
-      return namesNonAbstracts(type.allSubTypes().concat(type));
     }
+    var type = slot.mmFeature().type;
+    return namesNonAbstracts(type.allSubTypes().concat(type));
   };
 
   /**

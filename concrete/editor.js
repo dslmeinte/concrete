@@ -40,8 +40,8 @@ Concrete.Editor = Class.create({
   //   adaptReferences:
   //                 if set to true, adapt reference values when element identifiers change, default: false
   //
-  initialize: function(editorRoot, templateProvider, metamodelProvider, identifierProvider, options) {
-    options = options || {};
+  initialize: function(editorRoot, templateProvider, metamodelProvider, identifierProvider, _options) {
+    var options = _options || {};
     this.options = options;
     if (options.readOnlyMode == undefined) options.readOnlyMode = false;
     if (options.followReferenceSupport == undefined) options.followReferenceSupport = true;
@@ -399,6 +399,7 @@ Concrete.Editor = Class.create({
           var connector;
           if (element.tagName === "CANVAS" && (connector = Concrete.Graphics.getConnectorForCanvas(element))
             && connector.isOnConnector({x: event.clientX, y: event.clientY})) {
+        	  // FIXME  do nothing?!
           }
         })(this);
         // clicked fold button?:
@@ -641,9 +642,7 @@ Concrete.Editor = Class.create({
       this.didDrag = false;
       return true;
     }
-    else {
-      return false;
-    }
+    return false;
   },
 
   _handleDragging: function(event) {
@@ -897,7 +896,8 @@ Concrete.Editor = Class.create({
   },
 
   // expands the parent elements of an element or attribute/reference value
-  expandParentElements: function(n) {
+  expandParentElements: function(_n) {
+    var n = _n;
     if (!n.mmClass) {
       // node is a value, expand parents of containing element
       n = n.up(".ct_element");
@@ -969,7 +969,8 @@ Concrete.Editor = Class.create({
     return Concrete.Helper.prettyPrintJSON( Object.toJSON(this.modelInterface.model()) );
   },
 
-  setModel: function(model) {
+  setModel: function(_model) {
+    var model = _model;
     if( Object.isString(model) && model.isJSON()) {
       model = model.evalJSON();
     } // else: assume nothing has to be done
@@ -1002,9 +1003,7 @@ Concrete.Editor.CommandHelper = {
     if (slot.hasClassName("ct_root")) {
       return editor.maxRootElements == -1 || numElements < editor.maxRootElements;
     }
-    else {
-      return slot.mmFeature().upperLimit == -1 || numElements < slot.mmFeature().upperLimit;
-    }
+    return slot.mmFeature().upperLimit == -1 || numElements < slot.mmFeature().upperLimit;
   },
 
   showAllNonAutoHideFeatures: function(n, editor) {

@@ -41,13 +41,13 @@ Concrete.BasicInlineEditor = Class.create({
       input.size = input.value.length + 1;
     }, 50);
     new Autocompleter.Local(input, input.next(), completionOptions, {partialSearch: partial, fullSearch: partial, minChars: 0, partialChars: 0, onShow:
-      function(element, update){
+      function(_element, update){
         if(!update.style.position || update.style.position=='absolute') {
           update.style.position = 'absolute';
-          Position.clone(element, update, {
+          Position.clone(_element, update, {
             setHeight: false,
             setWidth: false, // in contrast to the original built-in default, do not set width
-            offsetTop: element.offsetHeight
+            offsetTop: _element.offsetHeight
           });
         }
         Effect.Appear(update,{duration:0.15});

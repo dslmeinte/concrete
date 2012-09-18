@@ -50,8 +50,7 @@ var Concrete = {
         'helper',
         'reference_manager',
         'connector_manager',
-        'graphics',
-        'nonDom_model_interface'
+        'graphics'
       ].each( function(include) { 
         Concrete.require(path + include + '.js');
       });

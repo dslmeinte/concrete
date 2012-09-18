@@ -30,9 +30,7 @@ Concrete.Graphics = {
            (Math.abs(point.x - linePoint1.x)*Math.abs(linePoint1.y - linePoint2.y)/Math.abs(linePoint1.x - linePoint2.x))) <= 3) {
         return true;
       }
-      else {
-        return false;
-      }
+      return false;
     };
     var elementBoxClipPoint = function(element, innerPoint, outerPoint) {
       var clipHX, clipHY;
@@ -51,12 +49,10 @@ Concrete.Graphics = {
       if( clipPointH && clipPointV ) {
         if( lineLength(outerPoint, clipPointH) > lineLength(outerPoint, clipPointV) ) {
           return clipPointH;
-        } else {
-          return clipPointV;
         }
-      } else {
-        return clipPointH || clipPointV;
+        return clipPointV;
       }
+      return clipPointH || clipPointV;
     };
 
     /*
@@ -131,9 +127,7 @@ Concrete.Graphics = {
           var p = endPoint();
           return p && Math.abs(p.x - point.x) <= 5 && Math.abs(p.y - point.y) <= 5;
         }
-        else {
-          return false;
-        }
+        return false;
       },
       setSelected: function(sel) {
         isSelected = sel;

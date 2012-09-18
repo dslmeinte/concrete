@@ -67,10 +67,10 @@ Element.addMethods({
     return parent;
   },
   findAncestorOrSelf: function(e, classes) {
-    if ( e.matchesClasses(classes) )
+    if ( e.matchesClasses(classes) ) {
       return e;
-    else
-      return e.findAncestor(classes);
+    }
+    return e.findAncestor(classes);
   },
   /**
    * Collects the first elements on each descendant path which match the searchClasses.

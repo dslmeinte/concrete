@@ -34,7 +34,7 @@ Concrete.IndexBasedExternalIdentifierProvider = function(index, metamodelProvide
         var type = _getType(m, parts);
         if (type) return { type: type, module: m.name };
       }
-    };
+    }
     return false;
   };
 
@@ -62,19 +62,15 @@ Concrete.IndexBasedExternalIdentifierProvider = function(index, metamodelProvide
     if (local == "") return false;
     var elements = cont.elements;
     if (!(elements instanceof Array)) elements = [elements].compact();
-    var e = elements.find(function(e) { return e.name == local; });
+    var e = elements.find(function(_e) { return _e.name == local; });
     if (e) {
       if (parts.size() > 0) {
         return _getType(e, parts);
       }
-      else {
-        return metamodelProvider.metaclassesByName[e._class];
-      }
+      return metamodelProvider.metaclassesByName[e._class];
     }
-    else {
-      return false; 
-    }
-  };
+    return false;
+  }
 
   function _getIdentifiers(cont, typenames, path) {
     var result = [];
@@ -88,7 +84,7 @@ Concrete.IndexBasedExternalIdentifierProvider = function(index, metamodelProvide
       result = result.concat(_getIdentifiers(e, typenames, epath));
     }, this);
     return result; 
-  };
+  }
 
   function _getAllElementInfo(cont, path, module) {
     var result = [];
@@ -100,7 +96,7 @@ Concrete.IndexBasedExternalIdentifierProvider = function(index, metamodelProvide
       result = result.concat(_getAllElementInfo(e, epath, module));
     }, this);
     return result; 
-  };
+  }
 
 };
 

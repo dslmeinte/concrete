@@ -14,9 +14,7 @@ Concrete.Clipboard = function(storageElement) {
 		if (data && Object.isString(data) && data.isJSON()) {
 			return data.evalJSON();
 		}
-		else {
-			return data;
-		}
+		return data;
 	};
 
 	this.write = function(data) {
@@ -43,13 +41,9 @@ Concrete.Clipboard = function(storageElement) {
 			if (this.element.tagName == "TEXTAREA") {
 				return this.element.value;
 			}
-			else {
-				return this.element.innerHTML;	
-			}
+			return this.element.innerHTML;
 		}
-		else {
-			return this.data;		
-		}		
+		return this.data;		
 	};
 
 	this._writeRaw = function(data) {

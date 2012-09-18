@@ -18,9 +18,8 @@ Element.addMethods({
   feature: function(e, clazz) {
     if( clazz ) {
       return e.findAncestor(clazz);
-    } else {
-      return e.findAncestor(["ct_attribute", "ct_reference", "ct_containment"]);
     }
+    return e.findAncestor(["ct_attribute", "ct_reference", "ct_containment"]);
   },
 
   mmFeature: function(e, clazz) {
@@ -31,7 +30,8 @@ Element.addMethods({
    * (currently only used by Concrete.UI.SearchReplaceDialog.findNext and
    *  Concrete.ModelInterface.Helper.nextElement)
    */
-  featureValues: function(e, feature) {
+  featureValues: function(e, _feature) {
+    var feature = _feature;
     if (Object.isString(feature)) {
       if (!e.featuresByName) {
         e.featuresByName = {};
@@ -48,24 +48,20 @@ Element.addMethods({
         // optimization: empty place holder values can not appear among other children
         return values;
       }
-      else if (values.size() == 1 && !values[0].hasClassName("ct_empty")) {
+      if (values.size() == 1 && !values[0].hasClassName("ct_empty")) {
         return [values[0]];
       }
-      else {
-        return [];
-      }
+      return [];
+    }
+    if (values.size() > 1) {
+    	// optimization: empty place holder values can not appear among other children
+    	return values.collect(function(c) {return c.value; });
+    }
+    if (values.size() == 1 && !values[0].hasClassName("ct_empty")) {
+    	return [values[0].value];
     }
     else {
-      if (values.size() > 1) {
-        // optimization: empty place holder values can not appear among other children
-        return values.collect(function(c) {return c.value; });
-      }
-      else if (values.size() == 1 && !values[0].hasClassName("ct_empty")) {
-        return [values[0].value]; 
-      }
-      else {
-        return []; 
-      }
+    	return [];
     }
   },
 
@@ -82,12 +78,11 @@ Element.addMethods({
  *       the function must take two arguments, the original value text and the value node's feature parent 
  *       default: none
  */
-Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvider, options) {
-
+Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvider, _options) {
   this.modelRoot = modelRoot;
   this.templateProvider = templateProvider;
   this.metamodelProvider = metamodelProvider;
-  options = options || {};
+  var options = _options || {};
   this._displayValueProvider = options.displayValueProvider;
   this._modelChangeListeners = [];
 
@@ -133,14 +128,15 @@ Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvide
    * Creates the element or elements described by 'model' in the position
    * indicated by 'where', relative to the 'target' element.
    */
-  this.createElement = function(target, where, model, options) {
+  this.createElement = function(target, where, _model, __options) {
+    var model = _model;
     if( !(["before", "after", "bottom"].include(where)) ) throw new Error ("unknown position");
     if( where == "bottom" && target != this.modelRoot && !target.hasClassName("ct_slot") ) throw new Error ("not a slot");
     if( where != "bottom" && !target.hasClassName("ct_element") ) throw new Error ("not an element");
     if( !(model instanceof Array) ) model = [model];
     if( where == "after" ) model = model.reverse();
     model.each(function(e) {
-      var inst = this._instantiateTemplateRecursive(e, target, where, options);
+      var inst = this._instantiateTemplateRecursive(e, target, where, __options);
       this._notifyModelChangeListeners("elementAdded", inst);
     }, this);
     var parent = target.up(".ct_element");
@@ -155,7 +151,8 @@ Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvide
     // TODO
   };
 
-  this.removeElement = function(elements) {
+  this.removeElement = function(_elements) {
+    var elements = _elements;
     if (!(elements instanceof Array)) elements = [ elements ];
     elements.each(function(element) {
       if (!element.hasClassName("ct_element")) throw new Error ("not an element");
@@ -170,7 +167,8 @@ Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvide
     this._notifyModelChangeListeners("commit");
   };
 
-  this.createValue = function(target, where, text) {
+  this.createValue = function(target, where, _text) {
+    var text = _text;
     if (!(["before", "after", "bottom"].include(where))) throw new Error ("unknown position");
     if (where == "bottom" && !target.hasClassName("ct_slot")) throw new Error ("not a slot");
     if (where != "bottom" && !target.hasClassName("ct_value")) throw new Error ("not a value");
@@ -184,7 +182,8 @@ Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvide
     this._notifyModelChangeListeners("commit");
   };
 
-  this.changeValue = function(value, text) {
+  this.changeValue = function(value, _text) {
+    var text = _text;
     var oldText;
     if (!value.hasClassName("ct_value")) throw new Error("not a value");
     var feature = value.findAncestor(["ct_attribute", "ct_reference"]);
@@ -397,8 +396,8 @@ Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvide
    * <p>
    * This function is optimized to minimize model load time.
    */
-  this._instantiateTemplateRecursive = function(element, target, where, options) {
-    options = options || {};
+  this._instantiateTemplateRecursive = function(element, target, where, __options) {
+    var options = __options || {};
     var clazz = this.metamodelProvider.metaclassesByName[element._class];
     if (!clazz) return;
     var tmpl = this.templateProvider.templateByClass(clazz);
@@ -502,9 +501,7 @@ Concrete.ModelInterface = function(modelRoot, templateProvider, metamodelProvide
     if (this._displayValueProvider) {
       return this._displayValueProvider(text, feature);
     }
-    else {
-      return text;
-    }
+    return text;
   };
 
   // add information used to make template instantiation more efficient 
@@ -530,7 +527,8 @@ Concrete.ModelInterface.Helper = {
   // in this case the stack must either be empty or it must be in the state
   // established by the last call of this method (i.e. it must not be modified)
   //
-  nextElement: function(element, stack) {
+  nextElement: function(_element, stack) {
+    var element = _element;
     var fIndex = 0;
     while (true) {
       var feature = element.features[fIndex];

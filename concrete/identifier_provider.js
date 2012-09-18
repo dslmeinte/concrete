@@ -148,6 +148,7 @@ Concrete.QualifiedNameBasedIdentifierProvider = Class.create(Concrete.AbstractId
   },
 
   commitChanges: function() {
+	  // (no behavior)
   },
 
   // ModelChangeListener End
