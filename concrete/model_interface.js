@@ -60,9 +60,7 @@ Element.addMethods({
     if (values.size() == 1 && !values[0].hasClassName("ct_empty")) {
     	return [values[0].value];
     }
-    else {
-    	return [];
-    }
+   	return [];
   },
 
   isElement: function(e) {

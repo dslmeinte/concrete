@@ -7,5 +7,7 @@
 
 Concrete.CleanModelInterface = function() {
 
+	// TODO  implement...
+
 };
 
