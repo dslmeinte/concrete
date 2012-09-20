@@ -39,53 +39,9 @@
  *   adaptReferences:
  *                 if set to true, adapt reference values when element identifiers change, default: false
  */
-Concrete.Editor = Class.create({
+Concrete.Editor = function(editorRoot, templateProvider, metamodelProvider, identifierProvider, _options) {
 
-  initialize: function(editorRoot, templateProvider, metamodelProvider, identifierProvider, _options) {
-    var options = _options || {};
-    this.options = options;
-    if (options.readOnlyMode == undefined) options.readOnlyMode = false;
-    if (options.followReferenceSupport == undefined) options.followReferenceSupport = true;
-    if (options.showInfoPopups == undefined) options.showInfoPopups = true;
-    options.scrolling = options.scrolling || "both";
-    if (options.dirtyListeners == undefined) options.dirtyListeners = [];
-    this.editorRoot = editorRoot;
-    this._setupRoot();
-    this.templateProvider = templateProvider;
-    this.metamodelProvider = metamodelProvider;
-    this.identifierProvider = identifierProvider;
-    this._createInlineEditor();
-    this.modelInterface = new Concrete.ModelInterface(this.modelRoot, this.templateProvider, this.metamodelProvider);
-    this.modelInterface.addModelChangeListener(this.identifierProvider);
-    this.rootClasses = options.rootClasses || this.metamodelProvider.metaclasses;
-    this.maxRootElements = -1;
-    this.externalIdentifierProvider = options.externalIdentifierProvider;
-    this.constraintChecker = options.constraintChecker || 
-      new Concrete.ConstraintChecker(this.rootClasses, this.identifierProvider, 
-        {externalIdentifierProvider: this.externalIdentifierProvider, 
-         externalModule: options.externalModule});
-    this.constraintChecker.setModelRoot(this.modelRoot);
-    this.modelInterface.addModelChangeListener(this.constraintChecker);
-    this.referenceManager = Concrete.createReferenceManager(
-      this.modelInterface, this.identifierProvider, {adaptReferences: options.adaptReferences});
-    this.connectorManager = Concrete.createConnectorManager(this.editorRoot, this.referenceManager, this.modelInterface, this.identifierProvider);
-    this.modelRoot.insert({top: this.templateProvider.emptyElement(this.modelRoot)});
-    this.selector = options.selector || new Concrete.Selector(); 
-    this._setupSelector(this.selector);
-    this.selector.selectDirect(this.modelRoot.down());
-    this.adjustMarker();
-    this.jumpStack = [];
-    this.clipboard = options.clipboard || new Concrete.Clipboard();
-    this.onFollowReference = options.onFollowReference;
-    this.onFollowExternalReference = options.onFollowExternalReference;
-    this._hasFocus = false;
-    this.showDocumentationPopups = true;
-    this.dirtyState = false;
-    this._observeEvents();
-    this._blockPopups = false;
-  },
-
-  _setupRoot: function() {
+  this._setupRoot = function() {
     this.editorRoot.insert({top: "<div class='ct_root'></div>"});
     this.modelRoot = this.editorRoot.childElements().first();
     this.editorRoot.insert({bottom: "<div style='position: absolute; left: 0; top: 0' class='ct_cursor'></div>"});
@@ -96,9 +52,9 @@ Concrete.Editor = Class.create({
     this.canvas = this.editorRoot.childElements().last();
     this.editorRoot.insert({bottom: "<div id=\"debug_div\"></div>"});
     this.debug = this.editorRoot.childElements().last();
-  },
+  };
 
-  _createInlineEditor: function() {
+  this._createInlineEditor = function() {
     var that = this;
     this.inlineEditor = new Concrete.InlineEditor(function(isActive) {
       if (isActive) {
@@ -111,9 +67,9 @@ Concrete.Editor = Class.create({
         that._blockPopups = false;
       }
     });
-  },
+  };
 
-  _observeEvents: function() {
+  this._observeEvents = function() {
     var editor = this;
     Event.observe(window, 'click', function(event) {
       editor.handleClick(event);
@@ -130,19 +86,19 @@ Concrete.Editor = Class.create({
     Event.observe(window, 'mousedown', function(event) {
       editor.handleMouseEvent(event);
     });
-  },
+  };
 
   /**
    * Sets the dirty state to the given value or to 'dirty'/true if no value is
    * given.
    */
-  _setDirtyState: function(state) {
+  this._setDirtyState = function(state) {
     this.dirtyState = ( typeof(state) == 'undefined' ) ? true : !!state;
-    var dirtyState = this.dirtyState;
-    this.options.dirtyListeners.forEach(function(l) { l.update(dirtyState); });
-  },
+    var _dirtyState = this.dirtyState;
+    this.options.dirtyListeners.forEach(function(l) { l.update(_dirtyState); });
+  };
 
-  _setupSelector: function(selector) {
+  this._setupSelector = function(selector) {
     var editor = this;
     selector.setOnChangeFunction(
       function(oldNode, newNode) {
@@ -160,13 +116,13 @@ Concrete.Editor = Class.create({
         }
         editor.adjustMarker();
       });
-  },
+  };
 
-  focus: function() {
+  this.focus = function() {
     this._hasFocus = true;
-  },
+  };
 
-  handleKeyDown: function(event) {
+  this.handleKeyDown = function(event) {
     if( !this._hasFocus ) {
       // Backspace?:
       if( event.keyCode == 8 ) {
@@ -316,9 +272,9 @@ Concrete.Editor = Class.create({
              (event.keyCode >= 48 && event.keyCode <= 57) ) {  // 0 - 9
       this.runCommand("edit_event");
     }
-  },
+  };
 
-  handleClick: function(event) {
+  this.handleClick = function(event) {
     if( !event.isLeftClick() ) {
       return;
     }
@@ -333,9 +289,9 @@ Concrete.Editor = Class.create({
       this._hasFocus = false;
       this.editorRoot.removeClassName("ct_focus");
     }
-  },
+  };
 
-  handleMouseEvent: function(event) {
+  this.handleMouseEvent = function(event) {
     if( !this._hasFocus ) {
       return;
     }
@@ -426,17 +382,17 @@ Concrete.Editor = Class.create({
         }
       }
     }
-  },
+  };
 
   /**
    * @returns Whether the Ctrl-key (or Cmd on Mac) was pressed.
    */
-  _ctrlKey: function(event) {
+  this._ctrlKey = function(event) {
     var onMac = ( navigator.userAgent.indexOf('Mac') > -1 );
     return( onMac ? event.metaKey : event.ctrlKey );
-  },
+  };
 
-  _handleErrorPopups: function(event) {
+  this._handleErrorPopups = function(event) {
     var element = event.element();
     var errorElement = (element.hasClassName("ct_error")) ? element : element.up(".ct_error");
     if (errorElement && (errorElement.up(".ct_editor") == this.editorRoot)) {
@@ -448,9 +404,9 @@ Concrete.Editor = Class.create({
     else {
       this._resetPopupMessage("error_desc");
     }    
-  },
+  };
 
-  _handleInfoPopups: function(event) {
+  this._handleInfoPopups = function(event) {
     var element = event.element();
     this._resetPopupMessage("feature_name");
     this._resetPopupMessage("reference_value");
@@ -491,9 +447,9 @@ Concrete.Editor = Class.create({
         }
       }
     }
-  },
+  };
 
-  _setPopupMessage: function(ident, kind, content) {
+  this._setPopupMessage = function(ident, kind, content) {
     this._popupMessages = this._popupMessages || {};
     var msg = this._popupMessages[ident];
     var clazz = kind == "error" ? "ct_error_message" : "ct_info_message";
@@ -509,9 +465,9 @@ Concrete.Editor = Class.create({
     if( !this._blockPopups ) {
       this.popup.show();
     }
-  },
+  };
 
-  _resetPopupMessage: function(ident) {
+  this._resetPopupMessage = function(ident) {
     this._popupMessages = this._popupMessages || {};
     var msg = this._popupMessages[ident];
     if (msg) {
@@ -519,9 +475,9 @@ Concrete.Editor = Class.create({
       this._popupMessages[ident] = undefined;
     }
     if (this.popup.childElements().size() == 0) this.popup.hide();
-  },
+  };
 
-  _handleCursorStyle: function(event) {
+  this._handleCursorStyle = function(event) {
     var element = event.element();
     var connector = Concrete.Graphics.getConnectorForCanvas(element);
     if (this.cursorStyledElement) {
@@ -542,9 +498,9 @@ Concrete.Editor = Class.create({
       element.style.cursor = "se-resize";
       this.cursorStyledElement = element;
     }
-  },
+  };
 
-  _handleVariantToggle: function(event) {
+  this._handleVariantToggle = function(event) {
     var element = event.element().up(".ct_element");
     var next;
     var vi = element.variantInfo();
@@ -556,9 +512,9 @@ Concrete.Editor = Class.create({
       element.setVariantIndex(next);
       this.connectorManager.repaint();      
     }
-  },
+  };
 
-  _handleDragStart: function(event) {
+  this._handleDragStart = function(event) {
     var element = event.element();
     var movee;
     var connector = Concrete.Graphics.getConnectorForCanvas(element);
@@ -596,9 +552,9 @@ Concrete.Editor = Class.create({
           connector: connector
       };
     }
-  },
+  };
 
-  _handleDragStop: function(event) {
+  this._handleDragStop = function(event) {
     var element = event.element();
     var ctElement = element.findAncestorOrSelf(["ct_element"]); 
     var dc = this.dragContext;
@@ -644,9 +600,9 @@ Concrete.Editor = Class.create({
       return true;
     }
     return false;
-  },
+  };
 
-  _handleDragging: function(event) {
+  this._handleDragging = function(event) {
     var element = event.element();
     var mouseDiffX, mouseDiffY;
     var dc = this.dragContext;
@@ -674,14 +630,14 @@ Concrete.Editor = Class.create({
         }
       }
     }
-  },
+  };
 
-  _isAtResizeHandle: function(event) {
+  this._isAtResizeHandle = function(event) {
     var element = event.element();
     return element.hasClassName("ct_resizable") && (event.clientX > (element.cumulativeScrollOffset().left + Element.getWidth(element)) - 10) && (event.clientY > (element.cumulativeScrollOffset().top + Element.getHeight(element)) - 10);
-  },
+  };
 
-  _handleRefHighlight: function(event) {
+  this._handleRefHighlight = function(event) {
     var element = event.element();
     if (this.refHighlight) {
       this.refHighlight.source.removeClassName("ct_ref_source");
@@ -716,9 +672,9 @@ Concrete.Editor = Class.create({
         this.refHighlight = {source: element, target: target};
       }
     }    
-  },
+  };
 
-  _drawReference: function(source, target) {
+  this._drawReference = function(source, target) {
     var fromX, fromY, toX, toY;
     if (source.left() < target.left()) {
       fromX = source.right();
@@ -739,9 +695,9 @@ Concrete.Editor = Class.create({
     fromY = source.top();
     toY = target.top();
     this._drawSpline(fromX, fromY, toX, toY);
-  },
+  };
 
-  _drawSpline: function(fromX, fromY, toX, toY) {
+  this._drawSpline = function(fromX, fromY, toX, toY) {
     /*
      * TODO
      * fix the (highlighting/right) canvas on top of the editor and draw from the _from to the _to...
@@ -771,9 +727,9 @@ Concrete.Editor = Class.create({
     context.lineWidth = 2;
     context.stroke();  
     this.canvas.show();
-  },
+  };
 
-  runCommand: function(eventId) {
+  this.runCommand = function(eventId) {
     var se = this.selector.selected;
     var cmd = Concrete.Editor.Commands.select(function(c) { 
       return (!this.options.readOnlyMode || c.readOnly) && c.enable && c.enable(se, this) && c.trigger == eventId;
@@ -781,14 +737,14 @@ Concrete.Editor = Class.create({
     if (cmd) {
       cmd.run(se, this);
     }
-  },
+  };
 
-  allSelected: function() {
+  this.allSelected = function() {
     return this.selector.multiSelected.concat(this.selector.selected).uniq();
-  },
+  };
 
   // assumption: all nodes have the same parent
-  removeElements: function(nodes) {
+  this.removeElements = function(nodes) {
     if (nodes.first().siblings().select(function(s){ return s.hasClassName("ct_element"); }).size() == nodes.size()-1) {
       nodes.last().insert({after: this.templateProvider.emptyElement(nodes.last().parentNode, nodes.last().feature())});
     }
@@ -800,27 +756,27 @@ Concrete.Editor = Class.create({
     }
     this.modelInterface.removeElement(nodes);
     this.adjustMarker();
-  },
+  };
 
-  hideEmptyFeatures: function(n) {
+  this.hideEmptyFeatures = function(n) {
     n.findFirstDescendants(["ct_attribute", "ct_reference", "ct_containment"], ["ct_element"]).each(function(f) {
       if (Concrete.Editor.CommandHelper.canAutoHide(f)) {
         f.hide();
       }
     });
     this.adjustMarker();
-  },
+  };
 
-  showHiddenFeatures: function(n) {
+  this.showHiddenFeatures = function(n) {
     // expand to make fold button state consistent (code below will show all features)
     this.expandElement(n);
     n.findFirstDescendants(["ct_attribute", "ct_reference", "ct_containment"], ["ct_element"]).each(function(f) {
       this.showHiddenFeature(f);
     }, this);
     this.adjustMarker();
-  },
+  };
 
-  showHiddenFeature: function(f) {
+  this.showHiddenFeature = function(f) {
     f.show();
     var slot = f.down(".ct_slot");
     if (slot.childElements().size() == 0) {
@@ -831,19 +787,19 @@ Concrete.Editor = Class.create({
         slot.insert({bottom: this.templateProvider.emptyValue(f)});
       }
     }
-  },
+  };
 
-  toggleFoldButton: function(fb) {
+  this.toggleFoldButton = function(fb) {
     if (fb.hasClassName("ct_fold_open")) {
       this.collapseElement(fb.up(".ct_element"));
     }
     else if (fb.hasClassName("ct_fold_closed")) {
       this.expandElement(fb.up(".ct_element"));
     }
-  },
+  };
 
-  collapseElement: function(n) {
-  var changeDirty = false;
+  this.collapseElement = function(n) {
+    var changeDirty = false;
     n.features.each(function(f) {
       if( f.mmFeature.isContainment() ) f.hide();
       changeDirty = true;
@@ -859,10 +815,10 @@ Concrete.Editor = Class.create({
     if( changeDirty ) {
       this._setDirtyState();
     }
-  },
+  };
 
-  expandElement: function(n) {
-  var changeDirty = false;
+  this.expandElement = function(n) {
+    var changeDirty = false;
     n.features.each(function(f) {
       if( f.mmFeature.isContainment() && !Concrete.Editor.CommandHelper.canAutoHide(f) ) {
         f.show();
@@ -880,24 +836,24 @@ Concrete.Editor = Class.create({
     if( changeDirty ) {
       this._setDirtyState();
     }
-  },
+  };
 
-  collapseElementRecursive: function(n) {
+  this.collapseElementRecursive = function(n) {
     n.select(".ct_element").each(function(e) {
       this.collapseElement(e);
     }, this);
     this.collapseElement(n);
-  },
+  };
 
-  expandElementRecursive: function(n) {
+  this.expandElementRecursive = function(n) {
     n.select(".ct_element").each(function(e) {
       this.expandElement(e);
     }, this);
     this.expandElement(n);
-  },
+  };
 
   // expands the parent elements of an element or attribute/reference value
-  expandParentElements: function(_n) {
+  this.expandParentElements = function(_n) {
     var n = _n;
     if (!n.mmClass) {
       // node is a value, expand parents of containing element
@@ -909,9 +865,9 @@ Concrete.Editor = Class.create({
         this.expandElement(e);
       }
     }, this);
-  },
+  };
 
-  copyToClipboard: function(nodes, editor) {
+  this.copyToClipboard = function(nodes, editor) {
     if (nodes.first().hasClassName("ct_value")) {
       // in case of a value, we expect only one node
       this.clipboard.write(nodes.first().value);
@@ -919,9 +875,9 @@ Concrete.Editor = Class.create({
     else {
       this.clipboard.write(nodes.collect(function(n) { return this.modelInterface.extractModel(n); }, this));
     }
-  },
+  };
 
-  jumpReference: function(n) {
+  this.jumpReference = function(n) {
     if (!n.hasClassName("ct_value") || !n.mmFeature().isReference()) return;
     var target = this.identifierProvider.getElement(n.value);
     if (target && !(target instanceof Array)) {
@@ -937,9 +893,9 @@ Concrete.Editor = Class.create({
         this.onFollowExternalReference(ei.module, n.value);
       }
     }
-  },
+  };
 
-  adjustMarker: function() {
+  this.adjustMarker = function() {
     var cur = this.selector.getCursorPosition();
     var poff = this.marker.getOffsetParent().cumulativeOffset();
     this.marker.setStyle( {
@@ -964,13 +920,13 @@ Concrete.Editor = Class.create({
         this.marker.addClassName("ct_cursor_right");
         this.marker.removeClassName("ct_cursor_left");
       }
-  },
+  };
 
-  getModel: function() {
+  this.getModel = function() {
     return Concrete.Helper.prettyPrintJSON( Object.toJSON(this.modelInterface.model()) );
-  },
+  };
 
-  setModel: function(_model) {
+  this.setModel = function(_model) {
     var model = _model;
     if( Object.isString(model) && model.isJSON()) {
       model = model.evalJSON();
@@ -978,6 +934,49 @@ Concrete.Editor = Class.create({
     this.modelInterface.removeElement(this.modelRoot.childElements());
     this.modelInterface.createElement(this.modelRoot, "bottom", model);
     this.selector.selectDirect(this.modelRoot.down());
-  }
-});
+  };
+
+  var options = _options || {};
+  this.options = _options;
+  if (options.readOnlyMode == undefined) options.readOnlyMode = false;
+  if (options.followReferenceSupport == undefined) options.followReferenceSupport = true;
+  if (options.showInfoPopups == undefined) options.showInfoPopups = true;
+  options.scrolling = options.scrolling || "both";
+  if (options.dirtyListeners == undefined) options.dirtyListeners = [];
+  this.editorRoot = editorRoot;
+  this._setupRoot();
+  this.templateProvider = templateProvider;
+  this.metamodelProvider = metamodelProvider;
+  this.identifierProvider = identifierProvider;
+  this._createInlineEditor();
+  this.modelInterface = new Concrete.ModelInterface(this.modelRoot, this.templateProvider, this.metamodelProvider);
+  this.modelInterface.addModelChangeListener(this.identifierProvider);
+  this.rootClasses = options.rootClasses || this.metamodelProvider.metaclasses;
+  this.maxRootElements = -1;
+  this.externalIdentifierProvider = options.externalIdentifierProvider;
+  this.constraintChecker = options.constraintChecker || 
+    new Concrete.ConstraintChecker(this.rootClasses, this.identifierProvider, 
+      {externalIdentifierProvider: this.externalIdentifierProvider, 
+       externalModule: options.externalModule});
+  this.constraintChecker.setModelRoot(this.modelRoot);
+  this.modelInterface.addModelChangeListener(this.constraintChecker);
+  this.referenceManager = Concrete.createReferenceManager(
+    this.modelInterface, this.identifierProvider, {adaptReferences: options.adaptReferences});
+  this.connectorManager = Concrete.createConnectorManager(this.editorRoot, this.referenceManager, this.modelInterface, this.identifierProvider);
+  this.modelRoot.insert({top: this.templateProvider.emptyElement(this.modelRoot)});
+  this.selector = options.selector || new Concrete.Selector(); 
+  this._setupSelector(this.selector);
+  this.selector.selectDirect(this.modelRoot.down());
+  this.adjustMarker();
+  this.jumpStack = [];
+  this.clipboard = options.clipboard || new Concrete.Clipboard();
+  this.onFollowReference = options.onFollowReference;
+  this.onFollowExternalReference = options.onFollowExternalReference;
+  this._hasFocus = false;
+  this.showDocumentationPopups = true;
+  this.dirtyState = false;
+  this._observeEvents();
+  this._blockPopups = false;
+
+};
 
