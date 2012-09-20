@@ -1,7 +1,7 @@
       13 nonDom_model_interface.js
       49 connector_manager.js
       57 inline_editor.js
-      61 concrete.js
+      62 concrete.js
       63 helper.js
       64 clipboard.js
       73 basic_inline_editor.js
@@ -15,6 +15,7 @@
      240 reference_manager.js
      321 selector.js
      343 constraint_checker.js
+     444 commands.js
      566 model_interface.js
-    1426 editor.js
-    4276 total
+     983 editor.js
+    4278 total

@@ -35,6 +35,7 @@ var Concrete = {
       var path = s.src.replace(js, '');
       [
         'editor',
+        'commands',
         'selector',
         'scroller',
         'element_extension',
