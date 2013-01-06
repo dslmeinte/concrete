@@ -1,0 +1,1 @@
+wc *.js | sort
