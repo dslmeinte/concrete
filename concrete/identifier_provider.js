@@ -111,18 +111,21 @@ Concrete.AbstractIdentifierProvider = Class.create({
   }
 });
 
-Concrete.QualifiedNameBasedIdentifierProvider = Class.create(Concrete.AbstractIdentifierProvider, {
+
+Concrete.QualifiedFragmentFunctionBasedIdentifierProvider = Class.create(Concrete.AbstractIdentifierProvider, {
 
   // Options:
-  // - nameAttribute: name of the attribute which holds an element's (non qualified) name, defaults to "name"
+  // - fragmentFunction: function to compute fragment name of an element's non qualified name - no defaults, throws an error if null
   // - separator: separator between parts (non qualified names) of qualified name, defaults to "/"
   // - leadingSeparator: specifies if qualified names should start with a leading separator, defaults to "true"
   initialize: function($super, options) {
-    $super();
     this.options = options || {};
-    this.options.nameAttribute = this.options.nameAttribute || "name";
+    if (!this.options.fragmentFunction) {
+    	throw 'fragmentFunction is required';
+    }
     this.options.separator = this.options.separator || "/";
     if (this.options.leadingSeparator == undefined) this.options.leadingSeparator = true;
+    $super();
   },
 
   // ModelChangeListener Interface
@@ -148,27 +151,27 @@ Concrete.QualifiedNameBasedIdentifierProvider = Class.create(Concrete.AbstractId
   },
 
   commitChanges: function() {
+	  // (no behavior)
   },
 
   // ModelChangeListener End
 
   _updateElement: function(element) {
-    var parent = element.ancestors().find(function(a) {return a._identifier; });
+    var parent = element.ancestors().find(function(a) { return a._identifier; });
     var qnamePrefix = (parent && parent._identifier) || "";
     this._updateQNames(element, qnamePrefix);
   },
 
   _updateQNames: function(element, qnamePrefix) {
-    var nameAttribute = element.features.find(function(f) { return f.mmFeature.name == this.options.nameAttribute; }, this);
-    var nameValue = nameAttribute && nameAttribute.slot.childElements().select(function(e) { return !e.hasClassName("ct_empty"); }).first();
-    var name = nameValue && nameValue.value;
+    var fragmentName = this.options.fragmentFunction(element);
+
     var qname = null;
-    if (name) {
+    if (fragmentName) {
       if (qnamePrefix.length > 0 || this.options.leadingSeparator) {
-        qname = qnamePrefix+this.options.separator+name;
+        qname = qnamePrefix + this.options.separator + fragmentName;
       }
       else {
-        qname = name;
+        qname = fragmentName;
       }
       this._changeIdentifier(element, qname);
     }
@@ -194,6 +197,27 @@ Concrete.QualifiedNameBasedIdentifierProvider = Class.create(Concrete.AbstractId
         }, this);
       }
     }, this);
+  }
+
+});
+
+
+Concrete.QualifiedNameBasedIdentifierProvider = Class.create(Concrete.QualifiedFragmentFunctionBasedIdentifierProvider, {
+
+  // Options:
+  // - nameAttribute: name of the attribute which holds an element's (non qualified) name, defaults to "name"
+  // - separator: separator between parts (non qualified names) of qualified name, defaults to "/"
+  // - leadingSeparator: specifies if qualified names should start with a leading separator, defaults to "true"
+  initialize: function($super, options) {
+	this.options = options || {};
+	var nameAttribute = this.options.nameAttribute || "name";	// (require a local var for the closure)
+    this.options.nameAttribute = nameAttribute;
+    this.options.fragmentFunction = function (element) {
+        var attribute = element.features.find(function(f) { return f.mmFeature.name == nameAttribute; }, this);
+        var nameValue = attribute && attribute.slot.childElements().select(function(e) { return !e.hasClassName("ct_empty"); }).first();
+        return nameValue && nameValue.value;
+    };
+    $super(this.options);
   }
 
 });
