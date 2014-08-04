@@ -202,6 +202,15 @@ Concrete.QualifiedFragmentFunctionBasedIdentifierProvider = Class.create(Concret
 });
 
 
+Concrete.createNameComputationFunction = function (nameAttribute) {
+	return function (element) {
+	  var attribute = element.features.find(function(f) { return f.mmFeature.name == nameAttribute; }, this);
+	  var nameValue = attribute && attribute.slot.childElements().select(function(e) { return !e.hasClassName("ct_empty"); }).first();
+      return nameValue && nameValue.value;
+	};
+};
+
+
 Concrete.QualifiedNameBasedIdentifierProvider = Class.create(Concrete.QualifiedFragmentFunctionBasedIdentifierProvider, {
 
   // Options:
@@ -210,13 +219,8 @@ Concrete.QualifiedNameBasedIdentifierProvider = Class.create(Concrete.QualifiedF
   // - leadingSeparator: specifies if qualified names should start with a leading separator, defaults to "true"
   initialize: function($super, options) {
 	this.options = options || {};
-	var nameAttribute = this.options.nameAttribute || "name";	// (require a local var for the closure)
-    this.options.nameAttribute = nameAttribute;
-    this.options.fragmentFunction = function (element) {
-        var attribute = element.features.find(function(f) { return f.mmFeature.name == nameAttribute; }, this);
-        var nameValue = attribute && attribute.slot.childElements().select(function(e) { return !e.hasClassName("ct_empty"); }).first();
-        return nameValue && nameValue.value;
-    };
+    this.options.nameAttribute = this.options.nameAttribute || "name";
+    this.options.fragmentFunction = Concrete.createNameComputationFunction(this.options.nameAttribute);
     $super(this.options);
   }
 
